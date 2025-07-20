@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {  NavLink, useLocation } from "react-router-dom";
 import { Link } from 'react-scroll';
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,14 @@ import {
   Phone,
   MapPin
 } from "lucide-react";
+import { AuthContext } from "@/contexts/authContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { language, toggleLanguage, isRTL } = useLanguage();
   const location = useLocation();
   const { cartCount } = useCart();
+  const { user, signOut } = useContext(AuthContext);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -101,7 +103,27 @@ const Navbar = () => {
 
             {/* Auth Buttons */}
             <div className={`hidden sm:flex ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
-              <Link to="/signin">
+              {
+                user ? (
+                  <Button variant="outline" size="sm" onClick={ () => signOut() }>
+                    {language === 'ar' ? 'تسجيل خروج' : 'Sign Out'}
+                  </Button>
+                ) : (
+                  <>
+                    <NavLink to="/signin">
+                      <Button variant="outline" size="sm">
+                        {language === 'ar' ? 'تسجيل دخول' : 'Sign In'}
+                      </Button>
+                    </NavLink>
+                  <NavLink to="/signup">
+                <Button className="btn-pizza" size="sm">
+                  {language === 'ar' ? 'انشاء حساب' : 'Sign Up'}
+                </Button>
+              </NavLink>
+                  </>
+                )
+              }
+              {/* <Link to="/signin">
                 <Button variant="outline" size="sm">
                   {language === 'ar' ? 'تسجيل دخول' : 'Sign In'}
                 </Button>
@@ -110,7 +132,7 @@ const Navbar = () => {
                 <Button className="btn-pizza" size="sm">
                   {language === 'ar' ? 'انشاء حساب' : 'Sign Up'}
                 </Button>
-              </Link>
+              </Link> */}
             </div>
 
             {/* Mobile Menu Button */}
