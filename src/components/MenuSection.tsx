@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import FreshJuice from "@/assets/Fresh Juice.jpg";
 import ChocolateCake from "@/assets/Chocolate Cake.jpeg";
 import VanillaIceCream from "@/assets/Vanilla Ice Cream.jpeg";
 import { Link } from "react-router-dom";
+import { AuthContext } from "@/contexts/authContext";
 
 interface MenuItem {
   id: number;
@@ -42,6 +43,7 @@ const MenuSection = () => {
   const [activeCategory, setActiveCategory] = useState('pizza');
   const { addToCart } = useCart();
   const { toast } = useToast();
+  const {user} = useContext(AuthContext)
 
   const categories = {
     ar: [
@@ -221,7 +223,9 @@ const MenuSection = () => {
   ];
 
   const handleAddToCart = (item: MenuItem) => {
-    addToCart({
+    {
+      if (user){
+          addToCart({
       id: item.id,
       name: item.name,
       price: item.price,
@@ -234,6 +238,16 @@ const MenuSection = () => {
       title: language === 'ar' ? "تم إضافة العنصر للسلة!" : "Item added to cart!",
       description: `${item.name[language]} ${language === 'ar' ? 'تم إضافته بنجاح' : 'added successfully'}`,
     });
+
+      }else{
+        toast({
+          title: language === 'ar' ? "يرجى تسجيل الدخول!" : "Please log in!",
+          description: language === 'ar' ? "يجب عليك تسجيل الدخول لإضافة عناصر إلى السلة." : "You need to log in to add items to the cart.",
+          variant: 'destructive',
+        });
+      }
+    }
+  
   };
 
   const getBadgeIcon = (badge: string) => {

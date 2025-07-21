@@ -11,6 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
+import { useContext } from "react";
+import { AuthContext } from "@/contexts/authContext";
+// import { useContext } from "react";
+// import { AddToCartContext } from "@/contexts/AddCartContext";
+
 
 // Helper functions for badge color and icon
 const getBadgeColor = (badge: string) => {
@@ -35,10 +42,7 @@ const getBadgeIcon = (badge: string) => {
   }
 };
 
-const handleAddToCart = (item: MenuItem) => {
-  // Implement your add to cart logic here
-  alert(`Added ${item.name.en} to cart!`);
-};
+
 
 interface MenuItem {
   id: number;
@@ -58,7 +62,12 @@ interface MenuItem {
 }
 
 const Pizza = () => {
+  // const {handleAddToCart} = useContext(AddToCartContext);
   const { language, isRTL } = useLanguage();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+    const {user} = useContext(AuthContext)
+
 
   const menuItems: MenuItem[] = [
     {
@@ -164,6 +173,33 @@ const Pizza = () => {
 
   ];
 
+  const handleAddToCart = (item: MenuItem) => {
+    {
+      if (user){
+          addToCart({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      size: language === 'ar' ? 'متوسط' : 'Medium',
+      toppings: []
+    });
+
+    toast({
+      title: language === 'ar' ? "تم إضافة العنصر للسلة!" : "Item added to cart!",
+      description: `${item.name[language]} ${language === 'ar' ? 'تم إضافته بنجاح' : 'added successfully'}`,
+    });
+
+      }else{
+        toast({
+          title: language === 'ar' ? "يرجى تسجيل الدخول!" : "Please log in!",
+          description: language === 'ar' ? "يجب عليك تسجيل الدخول لإضافة عناصر إلى السلة." : "You need to log in to add items to the cart.",
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
   return (
     <section id="drinks" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -251,6 +287,7 @@ const Pizza = () => {
                     size="sm"
                     className="btn-pizza group-hover:scale-105 transition-transform"
                     onClick={() => handleAddToCart(item)}
+                
                   >
                     <Plus
                       className={`w-4 h-4 ${

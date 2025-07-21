@@ -14,6 +14,8 @@ import { Plus, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { useContext } from "react";
+import { AuthContext } from "@/contexts/authContext";
 
 // Helper functions for badge color and icon
 const getBadgeColor = (badge: string) => {
@@ -61,6 +63,8 @@ const Deserts = () => {
   const { language, isRTL } = useLanguage();
     const { addToCart } = useCart();
     const { toast } = useToast();
+      const {user} = useContext(AuthContext)
+    
 
   const menuItems: MenuItem[] = [
     
@@ -168,7 +172,9 @@ const Deserts = () => {
   ];
 
   const handleAddToCart = (item: MenuItem) => {
-    addToCart({
+    {
+      if (user){
+          addToCart({
       id: item.id,
       name: item.name,
       price: item.price,
@@ -181,6 +187,15 @@ const Deserts = () => {
       title: language === 'ar' ? "تم إضافة العنصر للسلة!" : "Item added to cart!",
       description: `${item.name[language]} ${language === 'ar' ? 'تم إضافته بنجاح' : 'added successfully'}`,
     });
+
+      }else{
+        toast({
+          title: language === 'ar' ? "يرجى تسجيل الدخول!" : "Please log in!",
+          description: language === 'ar' ? "يجب عليك تسجيل الدخول لإضافة عناصر إلى السلة." : "You need to log in to add items to the cart.",
+          variant: 'destructive',
+        });
+      }
+    }
   };
 
   return (
